@@ -1,0 +1,13 @@
+{
+    "autodeskProduct": "Fusion360",
+    "type": "addin",
+    "id": "SpaceMouseDrawingMode",
+    "author": "DANECCA",
+    "description": {
+        "": "Automatically switches SpaceMouse (3DxWare) config between 2D Drawing mode and 3D Design mode"
+    },
+    "version": "1.0.1",
+    "runOnStartup": true,
+    "supportedOS": "windows",
+    "editEnabled": true
+}
