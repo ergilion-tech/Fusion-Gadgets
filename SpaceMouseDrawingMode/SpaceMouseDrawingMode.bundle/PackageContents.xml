@@ -4,7 +4,7 @@
     AutodeskProduct="Fusion360"
     Name="SpaceMouseDrawingMode"
     Description="Automatically switches SpaceMouse (3DxWare) config between 2D Drawing mode and 3D Design mode"
-    AppVersion="1.0.1"
+    AppVersion="1.0.2"
     Author="DANECCA"
     AppNameSpace="com.danecca.spacemousedrawingmode"
     ProductCode="*"
@@ -16,7 +16,7 @@
 
     <Components>
         <RuntimeRequirements SupportPath="./Contents" OS="win64" Platform="Fusion360" SeriesMin="" />
-        <ComponentEntry AppName="SpaceMouseDrawingMode" Version="1.0.1" ModuleName="./Contents/SpaceMouseDrawingMode.manifest" AppDescription="Automatically switches SpaceMouse (3DxWare) config between 2D Drawing mode and 3D Design mode" />
+        <ComponentEntry AppName="SpaceMouseDrawingMode" Version="1.0.2" ModuleName="./Contents/SpaceMouseDrawingMode.manifest" AppDescription="Automatically switches SpaceMouse (3DxWare) config between 2D Drawing mode and 3D Design mode" />
     </Components>
 
 </ApplicationPackage>

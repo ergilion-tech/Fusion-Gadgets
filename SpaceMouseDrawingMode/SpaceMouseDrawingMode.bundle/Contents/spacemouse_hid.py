@@ -116,6 +116,20 @@ class MSG(ctypes.Structure):
         ('pt_y',    ctypes.c_long),
     ]
 
+class RECT(ctypes.Structure):
+    _fields_ = [
+        ('left',   ctypes.c_long),
+        ('top',    ctypes.c_long),
+        ('right',  ctypes.c_long),
+        ('bottom', ctypes.c_long),
+    ]
+
+class POINT(ctypes.Structure):
+    _fields_ = [
+        ('x', ctypes.c_long),
+        ('y', ctypes.c_long),
+    ]
+
 # --------------------------------------------------------------------------- #
 # SpaceMouseListener
 # --------------------------------------------------------------------------- #
@@ -141,8 +155,9 @@ class SpaceMouseListener:
         self._thread     = None
         self._hwnd       = None
         self._proc_ref   = None   # keeps WNDPROC callback alive (prevents GC)
-        self._mid_held  = False
-        self._zoom_acc  = 0.0
+        self._mid_held   = False
+        self._zoom_acc   = 0.0
+        self._was_active = False   # True while any axis is above dead zone
 
     def start(self):
         self._running = True
@@ -310,7 +325,16 @@ class SpaceMouseListener:
     # ------------------------------------------------------------------ #
 
     def _apply(self, x, y, z):
-        dz    = self.DEAD_ZONE
+        dz     = self.DEAD_ZONE
+        active = abs(x) >= dz or abs(y) >= dz or abs(z) >= dz
+
+        # On the first report where any axis crosses the dead zone, snap the
+        # cursor to the centre of the Fusion window so that zoom/pan always
+        # anchors from the centre rather than wherever the cursor happened to be.
+        if active and not self._was_active:
+            self._snap_to_center()
+        self._was_active = active
+
         pan_x = int(x * self.PAN_SCALE) if abs(x) >= dz else 0
         pan_y = int(z * self.PAN_SCALE) if abs(z) >= dz else 0   # Z → vertical pan
         zoom  = (-y * self.ZOOM_SCALE)  if abs(y) >= dz else 0.0 # Y → zoom (reversed)
@@ -328,6 +352,24 @@ class SpaceMouseListener:
                 tick = 120 if self._zoom_acc > 0 else -120
                 self._scroll(tick)
                 self._zoom_acc -= tick
+
+    # ------------------------------------------------------------------ #
+    # Cursor centering
+    # ------------------------------------------------------------------ #
+
+    def _snap_to_center(self):
+        """Move the cursor to the centre of the Fusion 360 client area."""
+        hwnd = user32.GetForegroundWindow()
+        if not hwnd:
+            return
+        rect = RECT()
+        if not user32.GetClientRect(hwnd, ctypes.byref(rect)):
+            return
+        pt = POINT(0, 0)
+        user32.ClientToScreen(hwnd, ctypes.byref(pt))
+        cx = pt.x + (rect.right  - rect.left) // 2
+        cy = pt.y + (rect.bottom - rect.top)  // 2
+        user32.SetCursorPos(cx, cy)
 
     # ------------------------------------------------------------------ #
     # SendInput helpers
